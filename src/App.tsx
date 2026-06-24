@@ -12,6 +12,11 @@ const App: Component = () => {
   }
 
   const [completed, setCompleted] = createSignal(false);
+  const [todos, setTodos] = createSignal([
+    { id: 1, text: "abrazaar pinguino", completed: true },
+    { id: 2, text: "cazar pinguino", completed: false },
+    { id: 3, text: "liberar pinguino", completed: true },
+  ]);
 
   return (
     <div class="w-full h-full  min-h-screen flex items-center justify-center dark:bg-gray-600 dark:text-white">
@@ -24,14 +29,51 @@ const App: Component = () => {
         <input class="border dark:text-black" type="text" />
         <button class="px-2 border">Add</button>
         <ul>
-          <li>
+          {todos().map((todo) => (
+            <li>
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={() =>
+                  setTodos((prev) =>
+                    prev.map((t) =>
+                      t.id === todo.id ? { ...t, completed: !t.completed } : t,
+                    ),
+                  )
+                }
+              />
+              <span
+                onclick={() =>
+                  setTodos((prev) =>
+                    prev.map((t) =>
+                      t.id === todo.id ? { ...t, completed: !t.completed } : t,
+                    ),
+                  )
+                }
+              >
+                <Show when={todo.completed} fallback={<span>{todo.text}</span>}>
+                  <s>{todo.text}</s>
+                </Show>
+              </span>
+              <button
+                onclick={() =>
+                  setTodos((prev) => prev.filter((t) => t.id !== todo.id))
+                }
+              >
+                ❌
+              </button>
+            </li>
+          ))}
+          {/* <li>
             <input type="checkbox" checked />
-            <Show when={completed()} fallback={<span>abrazaar pinguino</span>}>
-              <s>abrazaar pinguino</s>
-            </Show>
-            {/* <span onclick={() => setCompleted(!completed())}>
-              {completed() ? <s>abrazaar pinguino</s> : "abrazaar pinguino"}
-            </span> */}
+
+            <span onclick={() => setCompleted(!completed())}>
+               {completed() ? <s>abrazaar pinguino</s> : "abrazaar pinguino"}
+              <Show when={completed()} fallback={<span>abrazaar pinguino</span>}>
+                <s>abrazaar pinguino</s>
+              </Show>
+            </span>
+
             <button>❌</button>
           </li>
           <li>
@@ -40,7 +82,7 @@ const App: Component = () => {
               <s>abrazaar pinguino</s>
             </span>
             <button>❌</button>
-          </li>
+          </li> */}
         </ul>
         <p class="text-sm mt-4">Completed count: {0}</p>
       </div>
