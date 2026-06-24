@@ -11,6 +11,8 @@ const App: Component = () => {
     setDarkMode(!darkMode());
   }
 
+  const [completed, setCompleted] = createSignal(false);
+
   return (
     <div class="w-full h-full  min-h-screen flex items-center justify-center dark:bg-gray-600 dark:text-white">
       <button class="text-2xl fixed top-0 right-0" onClick={toggleDarkMode}>
@@ -24,8 +26,8 @@ const App: Component = () => {
         <ul>
           <li>
             <input type="checkbox" checked />
-            <span>
-              <s>abrazaar pinguino</s>
+            <span onclick={() => setCompleted(!completed())}>
+              {completed() ? <s>abrazaar pinguino</s> : "abrazaar pinguino"}
             </span>
             <button>❌</button>
           </li>
