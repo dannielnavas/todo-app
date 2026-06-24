@@ -1,4 +1,4 @@
-import { createEffect, createSignal, type Component } from "solid-js";
+import { createEffect, createSignal, Show, type Component } from "solid-js";
 
 const App: Component = () => {
   const [darkMode, setDarkMode] = createSignal(false);
@@ -26,9 +26,12 @@ const App: Component = () => {
         <ul>
           <li>
             <input type="checkbox" checked />
-            <span onclick={() => setCompleted(!completed())}>
+            <Show when={completed()} fallback={<span>abrazaar pinguino</span>}>
+              <s>abrazaar pinguino</s>
+            </Show>
+            {/* <span onclick={() => setCompleted(!completed())}>
               {completed() ? <s>abrazaar pinguino</s> : "abrazaar pinguino"}
-            </span>
+            </span> */}
             <button>❌</button>
           </li>
           <li>
