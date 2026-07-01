@@ -18,6 +18,23 @@ const App: Component = () => {
     { id: 3, text: "liberar pinguino", completed: true },
   ]);
 
+  function removeTodos(index: number) {
+    setTodos((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  const [newItem, setNewItem] = createSignal("");
+
+  function addTodo() {
+    if (newItem().trim() === "") return;
+    const newTodo = {
+      id: Date.now(),
+      text: newItem(),
+      completed: false,
+    };
+    setTodos((prev) => [...prev, newTodo]);
+    setNewItem("");
+  }
+
   return (
     <div class="w-full h-full  min-h-screen flex items-center justify-center dark:bg-gray-600 dark:text-white">
       <button class="text-2xl fixed top-0 right-0" onClick={toggleDarkMode}>
@@ -26,8 +43,15 @@ const App: Component = () => {
 
       <div>
         <h1 class="text-2xl text-center">Solid Todo App</h1>
-        <input class="border dark:text-black" type="text" />
-        <button class="px-2 border">Add</button>
+        <input
+          class="border dark:text-black"
+          type="text"
+          value={newItem()}
+          onInput={(e) => setNewItem(e.currentTarget.value)}
+        />
+        <button class="px-2 border" onClick={addTodo}>
+          Add
+        </button>
         <ul>
           <For each={todos()}>
             {(
@@ -47,25 +71,26 @@ const App: Component = () => {
                   }
                 />
                 <span
-                  onclick={() =>
+                  onDblClick={(e) => {
+                    const target = e.target as HTMLElement;
+                    target.setAttribute("contenteditable", "true");
+                    target.focus();
+                  }}
+                  onBlur={(e) => {
+                    const target = e.target as HTMLElement;
+                    target.removeAttribute("contenteditable");
                     setTodos((prev) =>
                       prev.map((t) =>
-                        t.id === todo.id ? { ...t, completed: !t.completed } : t,
+                        t.id === todo.id ? { ...t, text: target.innerText } : t,
                       ),
-                    )
-                  }
+                    );
+                  }}
                 >
                   <Show when={todo.completed} fallback={<span>{todo.text}</span>}>
                     <s>{todo.text}</s>
                   </Show>
                 </span>
-                <button
-                  onclick={() =>
-                    setTodos((prev) => prev.filter((t) => t.id !== todo.id))
-                  }
-                >
-                  ❌
-                </button>
+                <button onclick={() => removeTodos(index())}>❌</button>
               </li>
             )}
           </For>
