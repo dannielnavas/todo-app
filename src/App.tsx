@@ -1,4 +1,11 @@
-import { createEffect, createSignal, For, Show, type Component } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  Show,
+  type Component,
+} from "solid-js";
 
 const App: Component = () => {
   const [darkMode, setDarkMode] = createSignal(false);
@@ -12,11 +19,7 @@ const App: Component = () => {
   }
 
   const [completed, setCompleted] = createSignal(false);
-  const [todos, setTodos] = createSignal([
-    { id: 1, text: "abrazaar pinguino", completed: true },
-    { id: 2, text: "cazar pinguino", completed: false },
-    { id: 3, text: "liberar pinguino", completed: true },
-  ]);
+  const [todos, setTodos] = createSignal<any[]>([]);
 
   function removeTodos(index: number) {
     setTodos((prev) => prev.filter((_, i) => i !== index));
@@ -25,15 +28,17 @@ const App: Component = () => {
   const [newItem, setNewItem] = createSignal("");
 
   function addTodo() {
-    if (newItem().trim() === "") return;
-    const newTodo = {
-      id: Date.now(),
-      text: newItem(),
-      completed: false,
-    };
-    setTodos((prev) => [...prev, newTodo]);
-    setNewItem("");
+    const [text, setText] = createSignal(newItem());
+    const [completed, setCompleted] = createSignal(false);
+    if (newItem()) {
+      setTodos([...todos(), { text, completed, setText, setCompleted }]);
+      setNewItem("");
+    }
   }
+
+  const completedCount = createMemo(
+    () => todos().filter((todo) => todo.completed()).length,
+  );
 
   return (
     <div class="w-full h-full  min-h-screen flex items-center justify-center dark:bg-gray-600 dark:text-white">
@@ -53,7 +58,7 @@ const App: Component = () => {
           Add
         </button>
         <ul>
-          <For each={todos()}>
+          <For each={todos()} fallback="No todos yet!">
             {(
               todo,
               index, // el index es un signal que nos permite saber el indice del elemento en el array, es decir, nos permite saber en que posicion del array se encuentra el elemento que estamos iterando
@@ -61,14 +66,8 @@ const App: Component = () => {
               <li>
                 <input
                   type="checkbox"
-                  checked={(console.log("common operator"), todo.completed)}
-                  onChange={() =>
-                    setTodos((prev) =>
-                      prev.map((t) =>
-                        t.id === todo.id ? { ...t, completed: !t.completed } : t,
-                      ),
-                    )
-                  }
+                  checked={(console.log("common operator"), todo.completed())}
+                  onChange={() => todo.setCompleted(!todo.completed())}
                 />
                 <span
                   onDblClick={(e) => {
@@ -79,15 +78,14 @@ const App: Component = () => {
                   onBlur={(e) => {
                     const target = e.target as HTMLElement;
                     target.removeAttribute("contenteditable");
-                    setTodos((prev) =>
-                      prev.map((t) =>
-                        t.id === todo.id ? { ...t, text: target.innerText } : t,
-                      ),
-                    );
+                    todo.setText(target.innerText);
                   }}
                 >
-                  <Show when={todo.completed} fallback={<span>{todo.text}</span>}>
-                    <s>{todo.text}</s>
+                  <Show
+                    when={todo.completed()}
+                    fallback={<span>{todo.text()}</span>}
+                  >
+                    <s>{todo.text()}</s>
                   </Show>
                 </span>
                 <button onclick={() => removeTodos(index())}>❌</button>
@@ -149,7 +147,9 @@ const App: Component = () => {
             <button>❌</button>
           </li> */}
         </ul>
-        <p class="text-sm mt-4">Completed count: {0}</p>
+        <p class="text-sm mt-4">
+          Completed count: {(console.log("completed"), completedCount())}
+        </p>
       </div>
     </div>
   );
