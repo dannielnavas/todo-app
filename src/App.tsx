@@ -6,6 +6,7 @@ import {
   Show,
   type Component,
 } from "solid-js";
+import { createStore } from "solid-js/store";
 
 const App: Component = () => {
   const [darkMode, setDarkMode] = createSignal(false);
@@ -19,7 +20,8 @@ const App: Component = () => {
   }
 
   const [completed, setCompleted] = createSignal(false);
-  const [todos, setTodos] = createSignal<any[]>([]);
+  // const [todos, setTodos] = createSignal<any[]>([]);
+  const [todos, setTodos] = createStore<{ text: string; completed: boolean }[]>([]);
 
   function removeTodos(index: number) {
     setTodos((prev) => prev.filter((_, i) => i !== index));
@@ -28,16 +30,16 @@ const App: Component = () => {
   const [newItem, setNewItem] = createSignal("");
 
   function addTodo() {
-    const [text, setText] = createSignal(newItem());
-    const [completed, setCompleted] = createSignal(false);
+    // const [text, setText] = createSignal(newItem());
+    // const [completed, setCompleted] = createSignal(false);
     if (newItem()) {
-      setTodos([...todos(), { text, completed, setText, setCompleted }]);
+      setTodos(todos.length, { text: newItem(), completed: false });
       setNewItem("");
     }
   }
 
   const completedCount = createMemo(
-    () => todos().filter((todo) => todo.completed()).length,
+    () => todos.filter((todo) => todo.completed).length,
   );
 
   return (
@@ -58,7 +60,7 @@ const App: Component = () => {
           Add
         </button>
         <ul>
-          <For each={todos()} fallback="No todos yet!">
+          <For each={todos} fallback="No todos yet!">
             {(
               todo,
               index, // el index es un signal que nos permite saber el indice del elemento en el array, es decir, nos permite saber en que posicion del array se encuentra el elemento que estamos iterando
@@ -66,8 +68,8 @@ const App: Component = () => {
               <li>
                 <input
                   type="checkbox"
-                  checked={(console.log("common operator"), todo.completed())}
-                  onChange={() => todo.setCompleted(!todo.completed())}
+                  checked={(console.log("common operator"), todo.completed)}
+                  onChange={() => setTodos(index(), "completed", !todo.completed)}
                 />
                 <span
                   onDblClick={(e) => {
@@ -78,14 +80,12 @@ const App: Component = () => {
                   onBlur={(e) => {
                     const target = e.target as HTMLElement;
                     target.removeAttribute("contenteditable");
-                    todo.setText(target.innerText);
+                    // todo.setText(target.innerText);
+                    setTodos(index(), "text", target.innerText);
                   }}
                 >
-                  <Show
-                    when={todo.completed()}
-                    fallback={<span>{todo.text()}</span>}
-                  >
-                    <s>{todo.text()}</s>
+                  <Show when={todo.completed} fallback={<span>{todo.text}</span>}>
+                    <s>{todo.text}</s>
                   </Show>
                 </span>
                 <button onclick={() => removeTodos(index())}>❌</button>
