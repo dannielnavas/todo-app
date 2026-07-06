@@ -1,23 +1,18 @@
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  Show,
-  type Component,
-} from "solid-js";
+import { createMemo, createSignal, For, type Component } from "solid-js";
 import { createStore, produce } from "solid-js/store";
+import { ButtonDarkMode } from "./components/ButtonDarkMode";
+import { Todo } from "./components/Todo";
 
 const App: Component = () => {
-  const [darkMode, setDarkMode] = createSignal(false);
+  // const [darkMode, setDarkMode] = createSignal(false);
 
-  createEffect(() => {
-    document.body.classList.toggle("dark", darkMode());
-  });
+  // createEffect(() => {
+  //   document.body.classList.toggle("dark", darkMode());
+  // });
 
-  function toggleDarkMode() {
-    setDarkMode(!darkMode());
-  }
+  // function toggleDarkMode() {
+  //   setDarkMode(!darkMode());
+  // }
 
   const [completed, setCompleted] = createSignal(false);
   // const [todos, setTodos] = createSignal<any[]>([]);
@@ -54,9 +49,10 @@ const App: Component = () => {
 
   return (
     <div class="w-full h-full  min-h-screen flex items-center justify-center dark:bg-gray-600 dark:text-white">
-      <button class="text-2xl fixed top-0 right-0" onClick={toggleDarkMode}>
+      {/* <button class="text-2xl fixed top-0 right-0" onClick={toggleDarkMode}>
         {darkMode() ? "☀️" : "🌙"}
-      </button>
+      </button> */}
+      <ButtonDarkMode />
 
       <div>
         <h1 class="text-2xl text-center">Solid Todo App</h1>
@@ -76,41 +72,16 @@ const App: Component = () => {
               index, // el index es un signal que nos permite saber el indice del elemento en el array, es decir, nos permite saber en que posicion del array se encuentra el elemento que estamos iterando
             ) => (
               <li>
-                <input
-                  type="checkbox"
-                  checked={(console.log("common operator"), todo.completed)}
-                  onChange={() => {
-                    // setTodos(index(), "completed", !todo.completed)
-                    setTodos(
-                      produce((todos) => {
-                        todos[index()].completed = !todos[index()].completed;
-                      }),
-                    );
-                  }}
-                />
-                <span
-                  onDblClick={(e) => {
-                    const target = e.target as HTMLElement;
-                    target.setAttribute("contenteditable", "true");
-                    target.focus();
-                  }}
-                  onBlur={(e) => {
-                    const target = e.target as HTMLElement;
-                    target.removeAttribute("contenteditable");
-                    // todo.setText(target.innerText);
-                    // setTodos(index(), "text", target.innerText);
-                    setTodos(
-                      produce((todos) => {
-                        todos[index()].text = target.innerText;
-                      }),
-                    );
-                  }}
+                <Todo
+                  todo={todo}
+                  index={index}
+                  setTodos={setTodos}
+                  removeTodos={removeTodos}
                 >
-                  <Show when={todo.completed} fallback={<span>{todo.text}</span>}>
-                    <s>{todo.text}</s>
-                  </Show>
-                </span>
-                <button onclick={() => removeTodos(index())}>❌</button>
+                  {" "}
+                  {/* el index es un signal que nos permite saber el indice del elemento en el array, es decir, nos permite saber en que posicion del array se encuentra el elemento que estamos iterando */}
+                  {todo.text}{" "}
+                </Todo>
               </li>
             )}
           </For>
