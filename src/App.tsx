@@ -6,7 +6,7 @@ import {
   Show,
   type Component,
 } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 
 const App: Component = () => {
   const [darkMode, setDarkMode] = createSignal(false);
@@ -24,7 +24,12 @@ const App: Component = () => {
   const [todos, setTodos] = createStore<{ text: string; completed: boolean }[]>([]);
 
   function removeTodos(index: number) {
-    setTodos((prev) => prev.filter((_, i) => i !== index));
+    // setTodos((prev) => prev.filter((_, i) => i !== index));
+    setTodos(
+      produce((todos) => {
+        todos.splice(index, 1);
+      }),
+    );
   }
 
   const [newItem, setNewItem] = createSignal("");
@@ -33,7 +38,12 @@ const App: Component = () => {
     // const [text, setText] = createSignal(newItem());
     // const [completed, setCompleted] = createSignal(false);
     if (newItem()) {
-      setTodos(todos.length, { text: newItem(), completed: false });
+      // setTodos(todos.length, { text: newItem(), completed: false });
+      setTodos(
+        produce((todos) => {
+          todos.push({ text: newItem(), completed: false });
+        }),
+      );
       setNewItem("");
     }
   }
@@ -69,7 +79,14 @@ const App: Component = () => {
                 <input
                   type="checkbox"
                   checked={(console.log("common operator"), todo.completed)}
-                  onChange={() => setTodos(index(), "completed", !todo.completed)}
+                  onChange={() => {
+                    // setTodos(index(), "completed", !todo.completed)
+                    setTodos(
+                      produce((todos) => {
+                        todos[index()].completed = !todos[index()].completed;
+                      }),
+                    );
+                  }}
                 />
                 <span
                   onDblClick={(e) => {
@@ -81,7 +98,12 @@ const App: Component = () => {
                     const target = e.target as HTMLElement;
                     target.removeAttribute("contenteditable");
                     // todo.setText(target.innerText);
-                    setTodos(index(), "text", target.innerText);
+                    // setTodos(index(), "text", target.innerText);
+                    setTodos(
+                      produce((todos) => {
+                        todos[index()].text = target.innerText;
+                      }),
+                    );
                   }}
                 >
                   <Show when={todo.completed} fallback={<span>{todo.text}</span>}>
