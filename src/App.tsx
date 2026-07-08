@@ -1,4 +1,10 @@
-import { createMemo, createSignal, For, type Component } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  type Component,
+} from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { ButtonDarkMode } from "./components/ButtonDarkMode";
 import { Todo } from "./components/Todo";
@@ -16,7 +22,10 @@ const App: Component = () => {
 
   const [completed, setCompleted] = createSignal(false);
   // const [todos, setTodos] = createSignal<any[]>([]);
-  const [todos, setTodos] = createStore<{ text: string; completed: boolean }[]>([]);
+  const todoLS = JSON.parse(window.localStorage.getItem("todos") || "[]");
+  const [todos, setTodos] = createStore<{ text: string; completed: boolean }[]>(
+    todoLS ?? [],
+  );
 
   function removeTodos(index: number) {
     // setTodos((prev) => prev.filter((_, i) => i !== index));
@@ -46,6 +55,10 @@ const App: Component = () => {
   const completedCount = createMemo(
     () => todos.filter((todo) => todo.completed).length,
   );
+
+  createEffect(() => {
+    window.localStorage.setItem("todos", JSON.stringify(todos));
+  });
 
   return (
     <div class="w-full h-full  min-h-screen flex items-center justify-center dark:bg-gray-600 dark:text-white">
