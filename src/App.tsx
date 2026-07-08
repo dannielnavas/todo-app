@@ -75,8 +75,21 @@ const App: Component = () => {
                 <Todo
                   todo={todo}
                   index={index}
-                  setTodos={setTodos}
-                  removeTodos={removeTodos}
+                  onInputChange={() => {
+                    setTodos(
+                      produce((todos) => {
+                        todos[index()].completed = !todos[index()].completed;
+                      }),
+                    );
+                  }}
+                  onTextChange={(newText: string) => {
+                    setTodos(
+                      produce((todos) => {
+                        todos[index()].text = newText;
+                      }),
+                    );
+                  }}
+                  onRemove={() => removeTodos(index())}
                 >
                   {" "}
                   {/* el index es un signal que nos permite saber el indice del elemento en el array, es decir, nos permite saber en que posicion del array se encuentra el elemento que estamos iterando */}
