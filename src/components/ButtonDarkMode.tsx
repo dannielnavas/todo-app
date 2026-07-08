@@ -1,13 +1,15 @@
 import { createEffect, createSignal } from "solid-js";
 
 export function ButtonDarkMode() {
-  const [darkMode, setDarkMode] = createSignal(false);
+  const darkModeLS = localStorage.getItem("darkMode") === "true";
+  const [darkMode, setDarkMode] = createSignal(darkModeLS);
 
   createEffect(() => {
     document.body.classList.toggle("dark", darkMode());
   });
   function toggleDarkMode() {
     setDarkMode(!darkMode());
+    localStorage.setItem("darkMode", (!darkMode()).toString());
   }
   return (
     <button class="text-2xl fixed top-0 right-0" onClick={toggleDarkMode}>
